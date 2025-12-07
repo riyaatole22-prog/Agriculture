@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Krishi Bharat — Agriculture Portal</title>
+
+  <!-- GSAP (you can keep but we use IntersectionObserver for reveal) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ===== ROOT PALETTE & RESET ===== */
+    :root{
+      --bg:#f6f5f1;
+      --deep:#143a2b;
+      --muted:#6b8a7a;
+      --accent:#2f9a59;
+      --accent-2:#c6892b;
+      --panel:#ffffff;
+      --card:#f3f7f3;
+      --shadow: 0 18px 40px rgba(20,46,32,0.08);
+      --round:18px;
+      --radius-sm:12px;
+      --maxw:1200px;
+      --ease: cubic-bezier(.2,.9,.3,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color:var(--deep);
+      background:linear-gradient(180deg, #eaf3ea 0%, var(--bg) 40%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+      scroll-behavior:smooth;
+    }
+    img{display:block;max-width:100%;height:auto}
+    .container{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+
+    /* ===== NAV ===== */
+    header{
+      position:sticky;top:0;z-index:60;background:rgba(249,248,245,0.95);backdrop-filter:blur(6px);
+      border-bottom:1px solid rgba(20,46,32,0.04)
+    }
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand .logo{
+      width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#1b6a3f);
+      box-shadow:0 8px 22px rgba(19,79,45,0.12);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px
+    }
+    .brand h1{font-size:20px;line-height:1;color:var(--deep);font-weight:700}
+    .brand p{color:var(--muted);font-size:13px;margin-top:2px}
+    nav.main-links{display:flex;gap:26px;align-items:center}
+    nav.main-links a{color:var(--muted);text-decoration:none;font-weight:600;padding:8px 10px;border-radius:10px}
+    nav.main-links a:hover{color:var(--deep);background:rgba(20,46,32,0.02)}
+
+    /* ===== HERO ===== */
+    .hero{
+      min-height:78vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;
+      padding:40px 0 80px;
+      background: radial-gradient(800px 700px at 10% 30%, rgba(20,46,32,0.06), transparent 8%),
+                  radial-gradient(450px 400px at 95% 70%, rgba(198,146,55,0.04), transparent 8%);
+    }
+    .hero-inner{width:100%;max-width:1180px;display:flex;gap:40px;align-items:center;justify-content:space-between}
+    .hero-left{flex:1;min-width:380px}
+    .tag{display:inline-block;background:rgba(255,255,255,0.6);padding:8px 18px;border-radius:999px;color:var(--deep);font-weight:700;margin-bottom:22px}
+    .hero-title{font-size:84px;line-height:0.95;font-weight:800;letter-spacing:-1px;color:var(--deep);margin-bottom:18px}
+    .hero-sub{font-size:20px;color:var(--muted);max-width:720px;margin-bottom:28px}
+    .hero-cta{display:flex;gap:18px;align-items:center}
+
+    .btn{
+      padding:16px 28px;border-radius:12px;font-weight:800;border:0;cursor:pointer;
+      box-shadow: 0 10px 30px rgba(26,70,40,0.08);
+    }
+    .btn.primary{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:#06220f}
+    .btn.ghost{background:transparent;border:1px solid rgba(20,46,32,0.06);color:var(--deep)}
+
+    /* ===== HERO ILLU / CARD ===== */
+    .hero-right{width:460px;min-width:360px;display:flex;flex-direction:column;gap:18px}
+    .signup-card{background:var(--panel);border-radius:22px;padding:28px;box-shadow:var(--shadow);border:1px solid rgba(20,46,32,0.04)}
+    .signup-card h3{font-size:28px;margin-bottom:14px;color:var(--deep)}
+    .field{margin-bottom:14px}
+    .label{font-size:13px;color:var(--muted);margin-bottom:8px;display:block}
+    .input, .select{width:100%;padding:14px 16px;border-radius:12px;border:1px solid rgba(20,46,32,0.06);background:#fbfdfb}
+    .row{display:flex;gap:12px}
+    .col{flex:1}
+
+    /* ===== SECTIONS & PANELS ===== */
+    section{padding:80px 0}
+    .panel{background:var(--panel);border-radius:18px;padding:28px;border:1px solid rgba(20,46,32,0.04);box-shadow:0 16px 30px rgba(20,46,32,0.03)}
+    h2.section-head{font-size:44px;margin-bottom:18px;color:var(--deep);text-align:center}
+    p.lead{max-width:900px;margin:12px auto 0;text-align:center;color:var(--muted);font-size:18px}
+
+    .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:28px}
+    .kpi{background:var(--card);padding:28px;border-radius:18px;text-align:center;border:1px solid rgba(20,46,32,0.03)}
+    .kpi .num{font-weight:800;font-size:28px;color:var(--deep);margin-bottom:6px}
+    .kpi .label{color:var(--muted)}
+
+    /* ===== GALLERY ===== */
+    .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:34px}
+    .photo{border-radius:22px;overflow:hidden;border:1px solid rgba(20,46,32,0.04);background:linear-gradient(180deg,#fff,#fbfdfb);box-shadow:0 18px 40px rgba(20,46,32,0.05)}
+    .photo img{width:100%;height:340px;object-fit:cover;transition:transform .9s var(--ease),filter .6s var(--ease)}
+    .photo:hover img{transform:scale(1.06);filter:brightness(.96) saturate(1.05)}
+    .photo .cap{padding:18px;color:var(--muted);font-weight:600}
+
+    .scheme-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 22px;
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: var(--shadow);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .scheme-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 24px rgba(0,0,0,0.12);
+    }
+    .scheme-icon {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+    .learn-more {
+      display: inline-block;
+      margin-top: 10px;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      transition: color .25s ease;
+    }
+    .learn-more:hover { color: var(--accent-2); }
+
+    /* ===== PORTAL FORM ===== */
+    .portal-wrap{max-width:880px;margin:30px auto}
+    .portal-form-card{padding:26px;border-radius:18px;background:var(--panel);box-shadow:var(--shadow);border:1px solid rgba(20,46,32,0.04)}
+    .portal-form-card .btn{width:100%;padding:16px;border-radius:14px;margin-top:14px}
+
+    /* ===== REVEAL FALLBACK ===== */
+    .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+
+    /* ===== PORTAL OUTPUT STYLES (IMPROVED) ===== */
+    .portal-output{margin-top:22px;border-radius:18px;padding:26px}
+    .portal-header {text-align:left;margin-bottom:18px}
+    .portal-header h2{font-size:28px;color:var(--deep);margin-bottom:6px}
+    .portal-header p{color:var(--muted)}
+
+    .crop-image-box {
+      width: 100%;
+      max-width: 520px;
+      margin: 18px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      padding: 12px;
+      display:flex;align-items:center;justify-content:center;flex-direction:column;
+    }
+    .crop-image-box img { width:100%; height:320px; object-fit:cover; border-radius:12px; display:block;}
+    .crop-image-box .img-caption { margin-top:10px; color:var(--muted); font-size:14px; }
+
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 18px;
+    }
+    .info-card {
+      text-align: left;
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+      border:1px solid rgba(0,0,0,0.04)
+    }
+    .info-card h3{margin-bottom:10px;color:var(--deep);font-size:18px}
+    .info-list{padding-left:18px;margin:0;color:#345c48}
+    .info-list li{margin-bottom:8px;line-height:1.5}
+
+    /* Mobile Responsive */
+    @media (max-width:1100px){ .hero-inner{flex-direction:column-reverse;align-items:center}.hero-title{font-size:56px;text-align:center}.hero-right{width:100%;min-width:unset} .gallery-grid{grid-template-columns:repeat(2,1fr)} .kpi-grid{grid-template-columns:repeat(2,1fr)} .schemes-grid{grid-template-columns:repeat(1,1fr)} }
+    @media (max-width:800px){ .portal-grid{grid-template-columns:1fr} .hero-title{font-size:34px} nav.main-links{display:none} .gallery-grid{grid-template-columns:1fr} .kpi-grid{grid-template-columns:1fr} .hero-sub{font-size:16px} }
+
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🌿</div>
+        <div>
+          <h1>Krishi Bharat</h1>
+          <p>Agriculture Portal</p>
+        </div>
+      </div>
+
+      <nav class="main-links" aria-label="main navigation">
+        <a href="#about">About</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#schemes">Schemes</a>
+        <a href="#portal">Farm Portal</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="container hero-inner">
+        <div class="hero-left">
+          <div class="tag">Empowering 140M+ Farmers</div>
+          <h1 class="hero-title reveal">Growing Together,<br>Prospering Forever</h1>
+          <p class="hero-sub reveal">Your one-stop portal for agricultural information, government schemes, and personalised farm guidance — built for small &amp; marginal farmers.</p>
+          <div class="hero-cta reveal">
+            <a href="#about" class="btn primary">Explore Now</a>
+            <a href="#portal" class="btn ghost">Get Crop Guidance</a>
+          </div>
+        </div>
+
+        <aside class="hero-right reveal" aria-hidden="false">
+          <div class="signup-card">
+            <h3>Create Your Account</h3>
+            <form id="regForm">
+              <div class="field">
+                <label class="label" for="name">Full name</label>
+                <input id="name" class="input" placeholder="Enter your full name" />
+              </div>
+              <div class="field">
+                <label class="label" for="email">Email address</label>
+                <input id="email" type="email" class="input" placeholder="your.email@example.com" />
+              </div>
+              <div class="field">
+                <label class="label" for="phone">Mobile number</label>
+                <input id="phone" class="input" placeholder="Required" />
+              </div>
+              <div class="row">
+                <div class="col field">
+                  <label class="label" for="state">State</label>
+                  <select id="state" class="select">
+                    <option>Your State</option>
+                    <option>Maharashtra</option>
+                    <option>Punjab</option>
+                    <option>Karnataka</option>
+                  </select>
+                </div>
+                <div class="col field">
+                  <label class="label" for="district">District</label>
+                  <input id="district" class="input" placeholder="Your District" />
+                </div>
+              </div>
+              <button class="btn primary" type="submit" style="margin-top:12px">Get Started →</button>
+            </form>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="reveal">
+      <div class="container">
+        <div class="panel">
+          <h2 class="section-head section-title">Department of Agriculture &amp; Farmers Welfare</h2>
+          <p class="lead">Working towards transforming Indian agriculture through innovative policies, technological advancement, and unwavering support for our farming community.</p>
+
+          <div class="kpi-grid">
+            <div class="kpi reveal">
+              <div class="num">140M+</div>
+              <div class="label">Farmers Benefitted</div>
+            </div>
+            <div class="kpi reveal">
+              <div class="num">₹2.5L Cr</div>
+              <div class="label">Investment in Agriculture</div>
+            </div>
+            <div class="kpi reveal">
+              <div class="num">4.6%</div>
+              <div class="label">Growth Rate</div>
+            </div>
+            <div class="kpi reveal">
+              <div class="num">100+</div>
+              <div class="label">Welfare Schemes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="reveal">
+      <div class="container">
+        <div class="panel">
+          <h2 class="section-head section-title">The Beauty of Indian Agriculture</h2>
+          <p class="lead">Witness the diverse agricultural landscape of India through our curated gallery.</p>
+
+          <div class="gallery-grid">
+            <div class="photo anim-photo">
+              <img src="agri images/1.png" alt="Green crop young shoots">
+              <div class="cap">Young maize shoots in early morning</div>
+            </div>
+            <div class="photo anim-photo">
+              <img src="agri images/2.png" alt="Sunset over fields">
+              <div class="cap">Golden fields at sunset</div>
+            </div>
+            <div class="photo anim-photo">
+              <img src="agri images/3.png" alt="Row crops">
+              <div class="cap">Organised row crops and irrigation</div>
+            </div>
+            <div class="photo anim-photo">
+              <img src="agri images/4.png" alt="Tractor in field">
+              <div class="cap">Ploughing with tractor</div>
+            </div>
+            <div class="photo anim-photo">
+              <img src="agri images/5.png" alt="Farmers market produce">
+              <div class="cap">Fresh produce at local mandi</div>
+            </div>
+            <div class="photo anim-photo">
+              <img src="agri images/6.png" alt="Vegetable harvest">
+              <div class="cap">Harvest and market-ready vegetables</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- SCHEMES -->
+<section id="schemes" class="reveal">
+  <div class="container">
+    <div class="panel">
+      
+      <h2 class="section-head section-title">Agricultural Welfare Schemes</h2>
+      <p class="lead section-text">
+        Discover government initiatives designed to support farmers across India —
+        providing income security, insurance protection, renewable energy adoption, market access,
+        and improved agricultural productivity.
+      </p>
+
+      <!-- Schemes Grid -->
+      <div class="schemes-grid">
+
+        <!-- PM KISAN -->
+        <div class="scheme-card reveal">
+          <div class="scheme-icon">💰</div>
+          <h4>PM-KISAN</h4>
+          <p>
+            Pradhan Mantri Kisan Samman Nidhi provides <strong>₹6,000 per year</strong> as direct income support
+            to eligible small & marginal farmers, deposited in three equal installments.
+          </p>
+          <a class="learn-more" href="https://pmkisan.gov.in" target="_blank">Learn More →</a>
+        </div>
+
+        <!-- PMFBY -->
+        <div class="scheme-card reveal">
+          <div class="scheme-icon">🛡️</div>
+          <h4>PMFBY</h4>
+          <p>
+            Pradhan Mantri Fasal Bima Yojana offers affordable <strong>crop insurance</strong> to protect farmers
+            against crop losses caused by natural calamities, pests, and diseases.
+          </p>
+          <a class="learn-more" href="https://pmfby.gov.in" target="_blank">Learn More →</a>
+        </div>
+
+        <!-- Soil Health Card -->
+        <div class="scheme-card reveal">
+          <div class="scheme-icon">🌱</div>
+          <h4>Soil Health Card</h4>
+          <p>
+            Farmers receive a personalised <strong>soil nutrient report</strong> every 2 years
+            including fertilizer recommendations to improve productivity & soil health.
+          </p>
+          <a class="learn-more" href="https://soilhealth.dac.gov.in" target="_blank">Learn More →</a>
+        </div>
+
+        <!-- PM-KUSUM -->
+        <div class="scheme-card reveal">
+          <div class="scheme-icon">🔆</div>
+          <h4>PM-KUSUM</h4>
+          <p>
+            Provides subsidies for <strong>solar pumps</strong> & solar energy systems,
+            enabling farmers to reduce irrigation costs and adopt clean renewable energy.
+          </p>
+          <a class="learn-more" href="https://mnre.gov.in/kusum" target="_blank">Learn More →</a>
+        </div>
+
+        <!-- e-NAM -->
+        <div class="scheme-card reveal">
+          <div class="scheme-icon">🏛️</div>
+          <h4>e-NAM</h4>
+          <p>
+            National Agriculture Market connects farmers to <strong>nationwide markets</strong>,
+            improving price discovery, transparency, and fair trade opportunities.
+          </p>
+          <a class="learn-more" href="https://enam.gov.in" target="_blank">Learn More →</a>
+        </div>
+
+        <!-- Kisan Credit Card -->
+        <div class="scheme-card reveal">
+          <div class="scheme-icon">💳</div>
+          <h4>Kisan Credit Card (KCC)</h4>
+          <p>
+            Provides farmers with <strong>flexible credit</strong> for crop cultivation, inputs,
+            emergencies, and household needs—at low interest rates.
+          </p>
+          <a class="learn-more" href="https://dfs.gov.in/kcc" target="_blank">Learn More →</a>
+        </div>
+
+      </div>
+
+      <div style="text-align:center;margin-top:32px">
+        <a class="btn ghost" href="https://agricoop.gov.in" target="_blank" rel="noopener">
+          Explore All Government Schemes →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+    <!-- PERSONALIZED PORTAL -->
+    <section id="portal" class="reveal">
+      <div class="container">
+        <h2 class="section-head section-title">Your Farm, Your Guide</h2>
+        <p class="lead">Enter your crop and farm details to receive personalised recommendations.</p>
+
+        <div class="portal-wrap">
+          <div class="portal-form-card">
+            <form id="farmForm">
+              <div class="field">
+                <label class="label" for="crop">What is your major crop?</label>
+                <select id="crop" class="select" required>
+                  <option value="">Select your crop</option>
+                  <option>Wheat</option>
+                  <option>Rice</option>
+                  <option>Maize</option>
+                  <option>Sugarcane</option>
+                  <option>Cotton</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="label" for="acres">Farm Area (in acres)</label>
+                <input id="acres" class="input" type="number" step="0.1" placeholder="Enter farm area" required />
+              </div>
+
+              <button class="btn primary" type="submit"><span>✦</span> Generate My Crop Portal</button>
+            </form>
+          </div>
+
+          <!-- OUTPUT CARD -->
+          <div id="portalOutput" class="panel portal-output reveal" aria-live="polite">
+            <div class="portal-header">
+              <h2 id="portalTitle">Your crop portal</h2>
+              <p id="portalIntro" class="portal-subtitle">Complete the form above to see personalised guidance.</p>
+            </div>
+
+            <div class="crop-image-box" aria-hidden="false">
+              <img id="cropImage" src="" alt="Crop image" style="display:none" onerror="this.style.display='none'">
+              <div class="img-caption">Crop photo</div>
+            </div>
+
+            <div class="portal-grid">
+              <div class="info-card">
+                <h3>🌾 Ideal harvesting time</h3>
+                <ul id="harvestList" class="info-list"></ul>
+              </div>
+
+              <div class="info-card">
+                <h3>🛠 Required care steps</h3>
+                <ul id="careList" class="info-list"></ul>
+              </div>
+
+              <div class="info-card">
+                <h3>🌤 Seasonal recommendations</h3>
+                <ul id="seasonList" class="info-list"></ul>
+              </div>
+
+              <div class="info-card">
+                <h3>⚠ Warnings & precautions</h3>
+                <ul id="warnList" class="info-list"></ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="padding:36px 0;background:transparent;border-top:1px solid rgba(20,46,32,0.03)">
+    <div class="container" style="display:flex;align-items:center;justify-content:space-between;gap:18px">
+      <div style="color:var(--muted)">© Krishi Bharat — Demo portal. For local advisories consult state agriculture department.</div>
+      <div>
+        <a class="btn ghost" href="#home">Back to top</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPT (Portal logic, reveals) -->
+  <script>
+    /* ===== basic $ / $$ helpers ===== */
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    /* ===== crop images: use RELATIVE paths to your folder "agri images" ===== */
+    const cropImages = {
+      "Wheat": "agri images/wheat.jpg",
+      "Rice": "agri images/rice.jpg",
+      "Maize": "agri images/maize.png",
+      "Sugarcane": "agri images/sugarcane.png",
+      "Cotton": "agri images/cotton.png",
+      "Pulses": "agri images/pulses.png",
+      "Mustard": "agri images/mustard.png",
+      "Groundnut": "agri images/groundnut.png",
+      "Potato": "agri images/potato.png",
+      "Onion": "agri images/onion.png",
+      "Tomato": "agri images/tomato.png",
+      "Millets": "agri images/millets.png"
+    };
+
+    /* ===== knowledge base (kept as you had it) ===== */
+    const cropKnowledgeBase = {
+      "Wheat": {
+        harvest: [
+          "Harvest when grains reach 12–14% moisture (March–April in many regions).",
+          "Golden ears and firm grain indicate maturity; avoid shattering by timely cutting."
+        ],
+        care: [
+          "Use certified seed; maintain 15–20 cm spacing.",
+          "Split nitrogen application; irrigate at crown root and booting stages.",
+          "Weed control early; monitor for rust and aphids."
+        ],
+        season: [
+          "Sow Oct–Nov in most zones for rabi wheat.",
+          "Cool, dry ripening improves quality."
+        ],
+        warn: [
+          "Rusts during cool wet conditions; use resistant varieties and follow advisories.",
+          "Heat stress during grain filling reduces yield — choose timely sowing."
+        ]
+      },
+      "Rice": {
+        harvest: [
+          "Harvest at 80–85% panicle maturity; moisture ~20–22%.",
+          "Timely threshing reduces breakage."
+        ],
+        care: [
+          "Maintain 2–5 cm water depth where required; balanced NPK application.",
+          "Monitor blast, BLB and stem borer; adopt IPM."
+        ],
+        season: [
+          "Kharif: transplant June–July (monsoon); short-duration varieties help in delayed monsoon."
+        ],
+        warn: [
+          "Excess standing water increases pest pressure.",
+          "Lodging risk in storms with heavy N; manage nutrient balance."
+        ]
+      },
+      "Maize": {
+        harvest: [
+          "Grain maize: harvest at black layer formation (moisture ~20%).",
+          "Green cobs: harvest at milk stage."
+        ],
+        care: [
+          "Maintain optimal population (~60–70k/ha); timely N top dressing.",
+          "Rotate crops; scout for fall armyworm."
+        ],
+        season: [
+          "Kharif sowing June–July; also in Rabi/Summer in some areas."
+        ],
+        warn: [
+          "Fall armyworm outbreaks—monitor and use IPM measures.",
+          "Nitrogen deficiency causes chlorosis; ensure balanced nutrition."
+        ]
+      },
+      "Sugarcane": {
+        harvest: [
+          "Harvest 10–12 months after planting when brix is high.",
+          "Prefer clean cutting; avoid burning residues."
+        ],
+        care: [
+          "Use healthy setts; mulching for moisture retention.",
+          "Split N & K; control red rot and borers."
+        ],
+        season: ["Planting varies by zone; spring & autumn common."],
+        warn: ["Red rot risk—use resistant varieties and sanitation."]
+      },
+      "Cotton": {
+        harvest: ["Pick when bolls open; multiple pickings for quality."],
+        care: [
+          "Use IPM for bollworm & sucking pests; avoid excess N.",
+          "Optimum spacing and field sanitation reduce pest carryover."
+        ],
+        season: ["Kharif sowing with monsoon onset."],
+        warn: ["Pink bollworm — synchronized practices and traps help control."]
+      }
+      // add others if needed...
+    };
+
+    /* ===== references to DOM ===== */
+    const farmForm = $('#farmForm');
+    const cropSelect = $('#crop');
+    const acresInput = $('#acres');
+
+    const portalTitle = $('#portalTitle');
+    const portalIntro = $('#portalIntro');
+    const cropImage = $('#cropImage');
+
+    const harvestList = $('#harvestList');
+    const careList = $('#careList');
+    const seasonList = $('#seasonList');
+    const warnList = $('#warnList');
+
+    function clearLists() {
+      [harvestList, careList, seasonList, warnList].forEach(ul => {
+        if (ul) ul.innerHTML = '';
+      });
+    }
+
+    function renderList(ul, arr) {
+      if (!ul) return;
+      ul.innerHTML = '';
+      if (!arr || !arr.length) {
+        const li = document.createElement('li');
+        li.textContent = 'No data available.';
+        li.style.color = 'var(--muted)';
+        ul.appendChild(li);
+        return;
+      }
+      arr.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        ul.appendChild(li);
+      });
+    }
+
+    // handle form
+    if (farmForm) {
+      farmForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const crop = (cropSelect && cropSelect.value) || '';
+        const acres = parseFloat((acresInput && acresInput.value) || '0');
+
+        if (!crop || !acres || acres <= 0) {
+          alert('Please select a crop and enter a valid farm area.');
+          return;
+        }
+
+        // Set title and intro
+        portalTitle.textContent = `${crop} portal • ${acres} acres`;
+        portalIntro.textContent = `Guidance tailored for ${crop} on approx ${acres} acres. Use local advisories to refine recommendations.`;
+
+        // populate lists
+        const kb = cropKnowledgeBase[crop] || {};
+        renderList(harvestList, kb.harvest || ['No guidance available.']);
+        renderList(careList, kb.care || ['No guidance available.']);
+        renderList(seasonList, kb.season || ['No guidance available.']);
+        renderList(warnList, kb.warn || ['No guidance available.']);
+
+        // set image
+        const imgPath = cropImages[crop];
+        if (imgPath) {
+          cropImage.src = imgPath;
+          cropImage.alt = crop + ' photo';
+          cropImage.style.display = 'block';
+          // if the image fails, hide it (onerror inline handles it)
+        } else {
+          cropImage.style.display = 'none';
+        }
+
+        // focus/announce
+        const out = $('#portalOutput');
+        out && out.scrollIntoView({ behavior: 'smooth' });
+        out && out.setAttribute('tabindex', '-1');
+        out && out.focus && out.focus();
+      });
+    }
+
+    /* ===== IntersectionObserver reveal (better than scroll polling) ===== */
+    (function setupReveal(){
+      const items = $$('.reveal');
+      if (!window.IntersectionObserver) {
+        // fallback: show all
+        items.forEach(i => i.classList.add('visible'));
+        return;
+      }
+      const obs = new IntersectionObserver((entries, o) => {
+        entries.forEach(en => {
+          if (en.isIntersecting) {
+            en.target.classList.add('visible');
+            // optionally unobserve to avoid repeated triggers
+            o.unobserve(en.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      items.forEach(it => obs.observe(it));
+    })();
+
+    /* small usability: allow enter to submit easily for the portal form */
+    ['regForm','farmForm'].forEach(id => {
+      const form = document.getElementById(id);
+      if (!form) return;
+      form.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          const btn = form.querySelector('button[type="submit"]');
+          btn && btn.click();
+        }
+      });
+    });
+
+    console.log('Krishi Bharat — UI scripts loaded');
+  </script>
+</body>
+</html>
